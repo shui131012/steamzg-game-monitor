@@ -1,0 +1,49 @@
+name: SteamZG Game Monitor
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: steamzg-game-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check SteamZG and send Telegram notifications
+        env:
+          TARGET_URL: "https://steamzg.com/category/%E5%8D%95%E6%9C%BA%E6%B8%B8%E6%88%8F/"
+          DATA_FILE: "data/seen_games.json"
+          MAX_SEEN_ITEMS: "500"
+          FIRST_RUN_NOTIFY: "false"
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python src/monitor.py
+
+      - name: Save history file back to repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/seen_games.json
+          if git diff --cached --quiet; then
+            echo "No history changes to commit."
+          else
+            git commit -m "Update seen games history"
+            git push
+          fi
