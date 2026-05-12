@@ -32,6 +32,7 @@ jobs:
           DATA_FILE: "data/seen_games.json"
           MAX_SEEN_ITEMS: "2000"
           MAX_PAGES_TO_SCAN: "20"
+          NOTIFY_UPDATED_ARTICLES: "true"
           FIRST_RUN_NOTIFY: "false"
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
